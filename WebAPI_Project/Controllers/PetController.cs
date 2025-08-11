@@ -69,5 +69,17 @@ namespace WebAPI_Project.Controllers
             }
             return Pet;
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            Pet? pet = await _petDbContext.Pets.FindAsync(id);
+            if (pet == null)
+            {
+                return NotFound();
+            }
+            _petDbContext.Pets.Remove(pet);
+            await _petDbContext.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }

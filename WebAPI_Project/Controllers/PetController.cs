@@ -20,7 +20,13 @@ namespace WebAPI_Project.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Pet>>> GetAll()
         {
-            return await _petDbContext.Pets.ToListAsync();
+            if (_petDbContext.Pets == null || !_petDbContext.Pets.Any())
+            {
+                throw new InvalidOperationException("Database is empty!");
+            }
+
+            var pets = await _petDbContext.Pets.ToListAsync();
+            return Ok(pets);
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<Pet>> GettAll(int id)
@@ -56,7 +62,7 @@ namespace WebAPI_Project.Controllers
             {
                 await _petDbContext.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException) 
             {
                 if (!_petDbContext.Pets.Any(x => x.Id == id))
                 {
@@ -75,7 +81,7 @@ namespace WebAPI_Project.Controllers
             Pet? pet = await _petDbContext.Pets.FindAsync(id);
             if (pet == null)
             {
-                return NotFound();
+                return NotFound(); 
             }
             _petDbContext.Pets.Remove(pet);
             await _petDbContext.SaveChangesAsync();

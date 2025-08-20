@@ -78,6 +78,31 @@ namespace WebAPI_ProjectTests
             var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await controller.GetAll());
             Assert.That(ex.Message, Is.EqualTo("Database is empty!"));
         }
+        [Test]
+        public async Task DeletePets_WhenDeleteItem_RemovesItFromCollection()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<PetDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            using var dbContext = new PetDbContext(options);
+            dbContext.Pets.Add(new Pet { Id = 1, Name = "Dog" });
+            dbContext.SaveChanges();
+
+            var sut = new PetController(dbContext);
+
+            // Act
+            var result = await sut.Delete(1);
+
+            // Assert
+            Assert.That(result, Is.TypeOf<NoContentResult>());
+
+            var pet = await dbContext.Pets.FindAsync(1);
+            Assert.That(pet, Is.Null);
+        }
+
+
 
     }
 }
